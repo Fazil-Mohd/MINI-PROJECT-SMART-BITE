@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2">Your Weekly Progress 📊</h1>
+            <p class="text-secondary">Here's a look at your activity over the last 7 days.</p>
+        </div>
+        <div>
+            <!-- This link is the key part -->
+            <a href="?format=csv" class="btn btn-outline-primary">
+                <i class="bi bi-download"></i> Download Report
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row mb-4">
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-secondary">Total Calories (Week)</h6>
+                    <h3 class="card-title">{{ total_calories_week }} <span class="h5 text-secondary">kcal</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-secondary">Meals Tracked</h6>
+                    <h3 class="card-title">{{ total_meals_week }} <span class="h5 text-secondary">meals</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-secondary">Avg. Daily Intake</h6>
+                    <h3 class="card-title">{{ avg_daily_calories }} <span class="h5 text-secondary">kcal</span></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h6 class="card-subtitle mb-2 text-secondary">Best Day</h6>
+                     <h3 class="card-title">{{ best_day.date }} <span class="h5 text-secondary">({{ best_day.calories }} kcal)</span></h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="row">
+        <div class="col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Daily Calorie Intake</h5>
+                    <canvas id="calorieChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-12 mb-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Meals Eaten Per Day</h5>
+                    <canvas id="mealCountChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ dates_json|json_script:"dates-data" }}
+{{ calories_json|json_script:"calories-data" }}
+{{ meal_counts_json|json_script:"meal-counts-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const chartFontColor = '#6B7280';
+
+    // Safely parse data from the page
+    const dates = JSON.parse(document.getElementById('dates-data').textContent);
+    const calories = JSON.parse(document.getElementById('calories-data').textContent);
+    const mealCounts = JSON.parse(document.getElementById('meal-counts-data').textContent);
+
+    const ctx1 = document.getElementById('calorieChart').getContext('2d');
+    new Chart(ctx1, {
+        type: 'bar',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Calories Consumed',
+                data: calories,
+                backgroundColor: 'rgba(34, 197, 94, 0.7)',
+                borderColor: 'rgba(34, 197, 94, 1)',
+                borderWidth: 1,
+                borderRadius: 5
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Calories (kcal)', color: chartFontColor }, ticks: { color: chartFontColor } },
+                x: { title: { display: true, text: 'Date', color: chartFontColor }, ticks: { color: chartFontColor } }
+            }
+        }
+    });
+
+    const ctx2 = document.getElementById('mealCountChart').getContext('2d');
+    new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: dates,
+            datasets: [{
+                label: 'Number of Meals',
+                data: mealCounts,
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: 'rgba(59, 130, 246, 1)',
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                y: { beginAtZero: true, title: { display: true, text: 'Number of Meals', color: chartFontColor }, ticks: { color: chartFontColor, stepSize: 1 } },
+                x: { title: { display: true, text: 'Date', color: chartFontColor }, ticks: { color: chartFontColor } }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}
+

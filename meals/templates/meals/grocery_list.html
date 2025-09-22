@@ -1,0 +1,36 @@
+<!-- meals/templates/meals/grocery_list.html -->
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-cart"></i> 🛒 Grocery List</h2>
+    <a href="?format=csv" class="btn btn-success">
+        <i class="bi bi-download"></i> Download CSV
+    </a>
+</div>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="list-group">
+            {% for item in shopping_list %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    {{ item }}
+                    <span class="badge bg-primary rounded-pill">Need</span>
+                </div>
+            {% empty %}
+                <div class="list-group-item">No items yet. Generate a meal plan first!</div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Tip</h5>
+                <p class="card-text">Group items by store section: Produce, Dairy, Pantry, Frozen.</p>
+                <p class="card-text"><small class="text-muted">Print this list or save as CSV to take to the store!</small></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

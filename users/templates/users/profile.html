@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h2><i class="bi bi-person-fill"></i> Your Profile</h2>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Update Your Details</h5>
+                    <p class="text-muted">Hello, {{ user.username }}! Keep your information up to date to get the best meal recommendations.</p>
+                    
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.age.id_for_label }}" class="form-label">Age</label>
+                                {{ form.age }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                                {{ form.gender }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.weight.id_for_label }}" class="form-label">Weight (kg)</label>
+                                {{ form.weight }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="{{ form.height.id_for_label }}" class="form-label">Height (cm)</label>
+                                {{ form.height }}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.activity_level.id_for_label }}" class="form-label">Activity Level</label>
+                            {{ form.activity_level }}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.goal.id_for_label }}" class="form-label">Your Goal</label>
+                            {{ form.goal }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.health_issues.id_for_label }}" class="form-label">Health Issues or Intolerances</label>
+                            {{ form.health_issues }}
+                            <small class="form-text text-muted">e.g., diabetes, gluten intolerance</small>
+                        </div>
+
+                        <hr>
+                        
+                        <button type="submit" class="btn btn-success w-100">
+                            <i class="bi bi-check-circle"></i> Save Changes
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Add some basic styling to the form elements rendered by Django */
+    select, input[type='number'], textarea {
+        display: block;
+        width: 100%;
+        padding: .375rem .75rem;
+        font-size: 1rem;
+        font-weight: 400;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid #ced4da;
+        border-radius: .25rem;
+        transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
+    }
+    select:focus, input:focus, textarea:focus {
+        border-color: #86b7fe;
+        outline: 0;
+        box-shadow: 0 0 0 0.25rem rgb(13 110 253 / 25%);
+    }
+</style>
+
+{% endblock %}

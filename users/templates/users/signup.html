@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Smart Bite</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'favicon.ico' %}">
+    <!-- Bootstrap Icons for Social Media -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <style>
+        /* Base Styles */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F9FAFB;
+            color: #1F2937;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        .main-content {
+            flex-grow: 1;
+        }
+        .footer {
+            background-color: #FFFFFF;
+            color: #6B7280;
+            padding: 4rem 1.5rem;
+            border-top: 1px solid #E5E7EB;
+            margin-top: auto;
+        }
+        .footer-container { max-width: 1200px; margin: 0 auto; display: grid; grid-template-columns: repeat(1, 1fr); gap: 2.5rem; text-align: center; }
+        @media (min-width: 768px) { .footer-container { grid-template-columns: repeat(2, 1fr) 1.5fr; text-align: left; } }
+        @media (min-width: 1024px) { .footer-container { grid-template-columns: 2fr 1fr 1fr 1fr; } }
+        .footer-logo h4 { font-family: 'Poppins', sans-serif; font-size: 1.25rem; color: #22c55e; margin-bottom: 0.5rem; }
+        .footer-logo p { font-size: 0.9rem; }
+        .footer-column h5 { font-weight: 600; color: #374151; margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; letter-spacing: 0.05em; }
+        .footer-links { list-style: none; padding: 0; margin: 0; }
+        .footer-links li { margin-bottom: 0.75rem; }
+        .footer-links a { color: #6B7280; text-decoration: none; transition: color 0.2s; }
+        .footer-links a:hover { color: #22c55e; }
+        .footer-socials { display: flex; gap: 1rem; justify-content: center; }
+        @media (min-width: 768px) { .footer-socials { justify-content: flex-start; } }
+        .footer-socials a { color: #9CA3AF; transition: color 0.2s; font-size: 1.5rem; }
+        .footer-socials a:hover { color: #22c55e; }
+        .footer-bottom { text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #E5E7EB; font-size: 0.875rem; }
+
+        /* Styles specific to the Sign Up card */
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4rem 1rem;
+        }
+        .auth-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+        }
+        .auth-card h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: #22c55e; /* Green color */
+            margin-bottom: 0.5rem;
+        }
+        .auth-card .subtitle { color: #6B7280; margin-bottom: 2rem; }
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        .form-group label { display: block; font-weight: 600; color: #374151; margin-bottom: 0.5rem; }
+        .form-group input { box-sizing: border-box; width: 100%; padding: 0.75rem 1rem; border: 1px solid #D1D5DB; border-radius: 8px; font-size: 1rem; transition: border-color 0.2s, box-shadow 0.2s; }
+        .form-group input:focus { border-color: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15); outline: none; }
+        
+        /* === UPDATED BUTTON STYLES === */
+        .auth-btn { 
+            width: 100%; 
+            padding: 0.8rem 1rem; 
+            background-color: #22c55e; /* Green button */
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 1rem; 
+            font-weight: 600; 
+            cursor: pointer; 
+            transition: background-color 0.3s; 
+        }
+        .auth-btn:hover { 
+            background-color: #16a34a; /* Darker green on hover */
+        }
+        /* ============================ */
+
+        .auth-link { margin-top: 1.5rem; color: #6B7280; }
+        .auth-link a { color: #4F46E5; font-weight: 600; text-decoration: none; }
+        .auth-link a:hover { text-decoration: underline; }
+        .error-message { color: #EF4444; font-size: 0.875rem; margin-top: 0.25rem; list-style: none; padding: 0; }
+    </style>
+</head>
+<body>
+    <!-- The header has been removed -->
+
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-card">
+                <!-- UPDATED H1 and Subtitle -->
+                <h1>SMART BITE 🥗</h1>
+                <p class="subtitle">Create an account to start your journey.</p>
+                
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div style="color: #EF4444; background-color: #FEE2E2; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                            {% for error in form.non_field_errors %}
+                                <p style="margin: 0;">{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                            <ul class="error-message">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email</label>
+                        {{ form.email }}
+                         {% if form.email.errors %}
+                            <ul class="error-message">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                        {{ form.password1 }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                        {{ form.password2 }}
+                         {% if form.password2.errors %}
+                            <ul class="error-message">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
+
+                    <button type="submit" class="auth-btn">Create Account</button>
+                </form>
+
+                <p class="auth-link">
+                    Already have an account? <a href="{% url 'login' %}">Log In</a>
+                </p>
+            </div>
+        </div>
+    </main>
+    
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-logo">
+                <h4>SMART BITE 🥗</h4>
+                <p>Your personal guide to a healthier lifestyle through intelligent meal planning.</p>
+            </div>
+            <div class="footer-column">
+                <h5>Quick Links</h5>
+                <ul class="footer-links">
+                    <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li><a href="{% url 'meal_plan' %}">Meal Plan</a></li>
+                    <li><a href="{% url 'discover_meals' %}">Discover</a></li>
+                    <li><a href="{% url 'progress' %}">Progress</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h5>Legal</h5>
+                <ul class="footer-links">
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h5>Connect With Us</h5>
+                <ul class="footer-links">
+                    <li><a href="mailto:contact@smartbite.com">contact@smartbite.com</a></li>
+                </ul>
+                <div class="footer-socials">
+                    <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; {% now "Y" %} Smart Bite. All Rights Reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>
+

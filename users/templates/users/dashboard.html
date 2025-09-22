@@ -1,0 +1,189 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+    .dashboard-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+    .dashboard-header {
+        margin-bottom: 2.5rem;
+    }
+    .dashboard-header h1 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    .dashboard-header p {
+        font-size: 1.125rem;
+        color: #6B7280;
+    }
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+    }
+    .card {
+        background-color: #ffffff;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 4px D:\LAST\smart_bite\smart_bite\users\templates\users\dashboard.html20px rgba(0, 0, 0, 0.07);
+    }
+    
+    /* Calorie Card Styling */
+    .card-calories {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+    .progress-ring-container {
+        position: relative;
+    }
+    .progress-ring {
+        transform: rotate(-90deg);
+    }
+    .progress-ring-bg {
+        fill: none;
+        stroke: #E5E7EB;
+        stroke-width: 12;
+    }
+    .progress-ring-fg {
+        fill: none;
+        stroke: #22c55e;
+        stroke-width: 12;
+        stroke-linecap: round;
+        transition: stroke-dashoffset 0.5s ease;
+        stroke-dasharray: 502.65;
+    }
+    .progress-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+    .calories-consumed {
+        display: block;
+        font-family: 'Poppins', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1F2937;
+    }
+    .calories-goal {
+        display: block;
+        color: #6B7280;
+        font-size: 0.9rem;
+    }
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin-bottom: 0.5rem;
+    }
+    
+    /* Profile Card Styling */
+    .profile-card h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 1.5rem;
+    }
+    .profile-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .profile-item span {
+        color: #6B7280;
+    }
+    .action-btn {
+        display: block;
+        width: 100%;
+        text-align: center;
+        padding: 0.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: background-color 0.3s;
+        margin-bottom: 0.75rem;
+    }
+    .btn-primary {
+        background-color: #22c55e;
+        color: white;
+    }
+    .btn-primary:hover {
+        background-color: #16a34a;
+    }
+    .btn-secondary {
+        background-color: #F3F4F6;
+        color: #1F2937;
+    }
+    .btn-secondary:hover {
+        background-color: #E5E7EB;
+    }
+    
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .dashboard-grid {
+            grid-template-columns: 1fr;
+        }
+        .card-calories {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1>Welcome back, {{ user.username }}! 👋</h1>
+        <p>Here's your summary for today.</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Main Content Area -->
+        <div class="card card-calories">
+            <div class="progress-ring-container">
+                <svg class="progress-ring" width="180" height="180">
+                    <circle class="progress-ring-bg" cx="90" cy="90" r="80"></circle>
+                    <circle class="progress-ring-fg" cx="90" cy="90" r="80" style="stroke-dashoffset: calc(502.65 - (502.65 * {{ progress_percent }}) / 100);"></circle>
+                </svg>
+                <div class="progress-text">
+                    <span class="calories-consumed">{{ calories_consumed }}</span>
+                    <span class="calories-goal">of {{ daily_calorie_goal }} kcal</span>
+                </div>
+            </div>
+            <div>
+                <p class="card-title">Today's Goal: Calories</p>
+                <p class="text-secondary">You've consumed {{ progress_percent }}% of your daily goal. Keep up the great work!</p>
+                <hr>
+                <p class="card-title">Macronutrients</p>
+                <div class="d-flex justify-content-between text-center">
+                    <div><strong>{{ protein }}g</strong><br><small class="text-secondary">Protein</small></div>
+                    <div><strong>{{ carbs }}g</strong><br><small class="text-secondary">Carbs</small></div>
+                    <div><strong>{{ fats }}g</strong><br><small class="text-secondary">Fats</small></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Profile & Actions Sidebar -->
+        <div class="card profile-card">
+            <h2>Your Profile</h2>
+            <div class="profile-item">
+                <span>Goal:</span>
+                <strong>{{ profile.get_goal_display }}</strong>
+            </div>
+            <div class="profile-item">
+                <span>Activity Level:</span>
+                <strong>{{ profile.get_activity_level_display }}</strong>
+            </div>
+            <hr>
+            <a href="{% url 'discover_meals' %}" class="action-btn btn-primary">Discover Meals</a>
+            <a href="{% url 'meal_plan' %}" class="action-btn btn-secondary">View Meal Plan</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
