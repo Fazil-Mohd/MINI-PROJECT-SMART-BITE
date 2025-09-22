@@ -1,0 +1,139 @@
+<!-- meals/templates/meals/meal_plan.html -->
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2><i class="bi bi-calendar-week"></i> Your Weekly Meal Plan</h2>
+    <a href="{% url 'generate_meal_plan' %}" class="btn btn-warning">
+        <i class="bi bi-arrow-clockwise"></i> Regenerate Plan
+    </a>
+</div>
+
+{% for day, meals in grouped_meals.items %}
+    <div class="card mb-4">
+        <div class="card-header bg-info text-white">
+            <h4>{{ day }}</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                {% for meal in meals %}
+                <div class="col-md-3 mb-3">
+                    <div class="card recipe-card h-100">
+                        {% if meal.image_url %}
+                            <img src="{{ meal.image_url }}" class="card-img-top" alt="{{ meal.meal_name }}" style="height: 150px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-light d-flex align-items-center justify-content-center" style="height:150px">
+                                <span class="text-muted">No Image</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-body d-flex flex-column">
+                            <h6 class="card-title small">{{ meal.meal_type }}</h6>
+                            <p class="card-text fw-bold small">{{ meal.meal_name }}</p>
+                            <div class="mt-auto">
+                                <!-- Nutrition Badges -->
+                                <div class="mb-2">
+                                    <span class="badge bg-primary me-1">{{ meal.calories }} kcal</span>
+                                    <span class="badge bg-secondary">{{ meal.protein }}g P</span>
+                                </div>
+
+                                <!-- Replace Button -->
+                                <div class="mt-2">
+                                    <button class="btn btn-sm btn-outline-secondary replace-meal w-100" data-meal-id="{{ meal.id }}">
+                                        🔄 Replace
+                                    </button>
+                                </div>
+
+                                <!-- Mark as Eaten Button -->
+                                <div class="mt-2">
+                                    {% if not meal.eaten %}
+                                        <button class="btn btn-sm btn-outline-success mark-as-eaten w-100" data-meal-id="{{ meal.id }}">
+                                            ✅ Mark as Eaten
+                                        </button>
+                                    {% else %}
+                                        <span class="badge bg-success w-100 py-2">Eaten</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+<!-- JavaScript at Bottom -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ➕ REPLACE MEAL HANDLER
+    document.querySelectorAll('.replace-meal').forEach(button => {
+        button.addEventListener('click', function() {
+            const mealId = this.getAttribute('data-meal-id');
+            const card = this.closest('.recipe-card');
+        
+            fetch(`/meals/meal/${mealId}/replace/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update meal name
+                    const nameElem = card.querySelector('.card-text.fw-bold');
+                    if (nameElem) nameElem.textContent = data.meal_name;
+                    
+                    // Update calories
+                    const calBadge = card.querySelector('.badge.bg-primary');
+                    if (calBadge) calBadge.textContent = `${data.calories} kcal`;
+                    
+                    // Update image
+                    const img = card.querySelector('img');
+                    if (img && data.image_url) {
+                        img.src = data.image_url;
+                        img.alt = data.meal_name;
+                    }
+                    
+                    alert('✅ Meal replaced successfully!');
+                } else {
+                    alert('❌ Failed: ' + (data.error || 'Unknown error'));
+                }
+            })
+            .catch(() => alert('⚠️ Network error while replacing meal'));
+        });
+    });
+
+    // ➕ MARK AS EATEN HANDLER
+    document.querySelectorAll('.mark-as-eaten').forEach(button => {
+        button.addEventListener('click', function() {
+            const mealId = this.getAttribute('data-meal-id');
+            const container = this.parentElement;
+
+            fetch(`/meals/meal/${mealId}/toggle-eaten/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    container.innerHTML = '<span class="badge bg-success w-100 py-2">Eaten</span>';
+                    // Optional: Trigger dashboard update via AJAX later
+                } else {
+                    alert('Failed: ' + data.error);
+                }
+            })
+            .catch(() => alert('Error updating meal status'));
+        });
+    });
+
+});
+</script>
+
+{% endblock %}
