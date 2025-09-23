@@ -1,117 +1,151 @@
-<!-- meals/templates/meals/meal_plan.html -->
 {% extends 'base.html' %}
+{% load static %}
+
 {% block content %}
+<style>
+    /* NEW: This is the container for each day */
+    .day-container {
+        background-color: #ffffff;
+        border: 1px solid #E5E7EB;
+        border-radius: 16px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+    .day-header {
+        /* background-color: #F3F4F6; */ /* No longer needed, as the container has a background */
+        /* padding: 1rem 1.5rem; */ /* Padding is now on the container */
+        /* border-radius: 12px; */
+        margin-bottom: 1.5rem;
+    }
+    .day-header h2 {
+        font-family: 'Poppins', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: #1F2937;
+        margin: 0;
+    }
+    .meal-card {
+        background-color: #ffffff;
+        border: 1px solid #E5E7EB;
+        border-radius: 12px;
+        overflow: hidden;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        transition: box-shadow 0.3s, transform 0.3s;
+    }
+    .meal-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    }
+    .meal-card-img {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+    }
+    .meal-card-body {
+        padding: 1.25rem;
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+    }
+    .meal-card-title {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: #1F2937;
+        margin-bottom: 0.5rem;
+        flex-grow: 1;
+    }
+    .meal-card-subtitle {
+        color: #6B7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .nutrition-badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 0.3rem 0.6rem;
+        border-radius: 20px;
+        background-color: #F3F4F6;
+        color: #4B5563;
+    }
+    .action-buttons {
+        margin-top: 1.5rem; 
+    }
+    .action-buttons .btn {
+        width: 100%;
+        font-weight: 600;
+        padding: 0.6rem;
+    }
+</style>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h2><i class="bi bi-calendar-week"></i> Your Weekly Meal Plan</h2>
-    <a href="{% url 'generate_meal_plan' %}" class="btn btn-warning">
-        <i class="bi bi-arrow-clockwise"></i> Regenerate Plan
-    </a>
-</div>
-
-{% for day, meals in grouped_meals.items %}
-    <div class="card mb-4">
-        <div class="card-header bg-info text-white">
-            <h4>{{ day }}</h4>
+<div class="container py-4">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="h2 font-weight-bold" style="color: var(--text-primary-color);">Your Weekly Meal Plan</h1>
+            <p class="text-muted" style="color: var(--text-secondary-color);">Here is your personalized plan for the week.</p>
         </div>
-        <div class="card-body">
-            <div class="row">
-                {% for meal in meals %}
-                <div class="col-md-3 mb-3">
-                    <div class="card recipe-card h-100">
-                        {% if meal.image_url %}
-                            <img src="{{ meal.image_url }}" class="card-img-top" alt="{{ meal.meal_name }}" style="height: 150px; object-fit: cover;">
-                        {% else %}
-                            <div class="bg-light d-flex align-items-center justify-content-center" style="height:150px">
-                                <span class="text-muted">No Image</span>
-                            </div>
-                        {% endif %}
-                        <div class="card-body d-flex flex-column">
-                            <h6 class="card-title small">{{ meal.meal_type }}</h6>
-                            <p class="card-text fw-bold small">{{ meal.meal_name }}</p>
-                            <div class="mt-auto">
-                                <!-- Nutrition Badges -->
-                                <div class="mb-2">
-                                    <span class="badge bg-primary me-1">{{ meal.calories }} kcal</span>
-                                    <span class="badge bg-secondary">{{ meal.protein }}g P</span>
-                                </div>
+        <a href="{% url 'generate_meal_plan' %}" class="btn btn-warning font-weight-bold">
+            🔄 Regenerate Plan
+        </a>
+    </div>
 
-                                <!-- Replace Button -->
-                                <div class="mt-2">
-                                    <button class="btn btn-sm btn-outline-secondary replace-meal w-100" data-meal-id="{{ meal.id }}">
-                                        🔄 Replace
-                                    </button>
+    <!-- Meal Plan Loop -->
+    {% for day, meals in grouped_meals.items %}
+        {% if meals %}
+            <!-- THE FIX IS HERE: Each day is now wrapped in a .day-container -->
+            <div class="day-container">
+                <div class="day-header">
+                    <h2>{{ day }}</h2>
+                </div>
+                <div class="row">
+                    {% for meal in meals %}
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="meal-card">
+                            <img src="{{ meal.image_url|default:'https://placehold.co/600x400/E5E7EB/4B5563?text=No+Image' }}" alt="{{ meal.meal_name }}" class="meal-card-img">
+                            <div class="meal-card-body">
+                                <p class="meal-card-subtitle">{{ meal.meal_type }}</p>
+                                <h5 class="meal-card-title">{{ meal.meal_name }}</h5>
+                                <div class="mb-3">
+                                    <span class="nutrition-badge">{{ meal.calories }} kcal</span>
                                 </div>
-
-                                <!-- Mark as Eaten Button -->
-                                <div class="mt-2">
-                                    {% if not meal.eaten %}
-                                        <button class="btn btn-sm btn-outline-success mark-as-eaten w-100" data-meal-id="{{ meal.id }}">
-                                            ✅ Mark as Eaten
-                                        </button>
-                                    {% else %}
-                                        <span class="badge bg-success w-100 py-2">Eaten</span>
-                                    {% endif %}
+                                <div class="action-buttons">
+                                    <div class="btn-group w-100" role="group">
+                                        <button class="btn btn-sm btn-outline-secondary replace-meal" data-meal-id="{{ meal.id }}">Replace</button>
+                                        
+                                        {% if meal.eaten %}
+                                            <button class="btn btn-sm btn-success toggle-eaten-btn" data-meal-id="{{ meal.id }}">✔️ Eaten (Undo)</button>
+                                        {% else %}
+                                            <button class="btn btn-sm btn-outline-success toggle-eaten-btn" data-meal-id="{{ meal.id }}">✅ Mark as Eaten</button>
+                                        {% endif %}
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
             </div>
-        </div>
-    </div>
-{% endfor %}
+        {% endif %}
+    {% endfor %}
+</div>
+{% endblock %}
 
-<!-- JavaScript at Bottom -->
+{% block extra_js %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
 
-    // ➕ REPLACE MEAL HANDLER
-    document.querySelectorAll('.replace-meal').forEach(button => {
-        button.addEventListener('click', function() {
-            const mealId = this.getAttribute('data-meal-id');
-            const card = this.closest('.recipe-card');
-        
-            fetch(`/meals/meal/${mealId}/replace/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': '{{ csrf_token }}',
-                    'Accept': 'application/json',
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update meal name
-                    const nameElem = card.querySelector('.card-text.fw-bold');
-                    if (nameElem) nameElem.textContent = data.meal_name;
-                    
-                    // Update calories
-                    const calBadge = card.querySelector('.badge.bg-primary');
-                    if (calBadge) calBadge.textContent = `${data.calories} kcal`;
-                    
-                    // Update image
-                    const img = card.querySelector('img');
-                    if (img && data.image_url) {
-                        img.src = data.image_url;
-                        img.alt = data.meal_name;
-                    }
-                    
-                    alert('✅ Meal replaced successfully!');
-                } else {
-                    alert('❌ Failed: ' + (data.error || 'Unknown error'));
-                }
-            })
-            .catch(() => alert('⚠️ Network error while replacing meal'));
-        });
-    });
-
-    // ➕ MARK AS EATEN HANDLER
-    document.querySelectorAll('.mark-as-eaten').forEach(button => {
-        button.addEventListener('click', function() {
-            const mealId = this.getAttribute('data-meal-id');
-            const container = this.parentElement;
+    // MARK AS EATEN / UNDO HANDLER
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('toggle-eaten-btn')) {
+            const button = event.target;
+            const mealId = button.getAttribute('data-meal-id');
 
             fetch(`/meals/meal/${mealId}/toggle-eaten/`, {
                 method: 'POST',
@@ -123,17 +157,58 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    container.innerHTML = '<span class="badge bg-success w-100 py-2">Eaten</span>';
-                    // Optional: Trigger dashboard update via AJAX later
+                    if (data.eaten) {
+                        button.classList.remove('btn-outline-success');
+                        button.classList.add('btn-success');
+                        button.innerHTML = '✔️ Eaten (Undo)';
+                    } else {
+                        button.classList.remove('btn-success');
+                        button.classList.add('btn-outline-success');
+                        button.innerHTML = '✅ Mark as Eaten';
+                    }
                 } else {
-                    alert('Failed: ' + data.error);
+                    alert('Failed to update meal status.');
                 }
             })
-            .catch(() => alert('Error updating meal status'));
-        });
+            .catch(() => alert('An error occurred. Please try again.'));
+        }
     });
 
+    // REPLACE MEAL HANDLER
+    document.body.addEventListener('click', function(event) {
+        if (event.target.classList.contains('replace-meal')) {
+            const button = event.target;
+            const mealId = button.getAttribute('data-meal-id');
+            const card = button.closest('.meal-card');
+
+            button.disabled = true;
+            button.innerHTML = 'Replacing...';
+
+            fetch(`/meals/meal/${mealId}/replace/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Accept': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    card.querySelector('.meal-card-img').src = data.image_url;
+                    card.querySelector('.meal-card-title').textContent = data.meal_name;
+                    card.querySelector('.nutrition-badge').textContent = `${data.calories} kcal`;
+                } else {
+                    alert(data.error || 'Failed to replace meal.');
+                }
+            })
+            .catch(() => alert('An error occurred while replacing the meal.'))
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = 'Replace';
+            });
+        }
+    });
 });
 </script>
-
 {% endblock %}
+
